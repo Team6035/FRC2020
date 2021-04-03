@@ -1,108 +1,132 @@
 package frc.robot.controller;
 
-import frc.robot.*;
-
-//import frc.robot.controller.operations.*;
+import frc.robot.controller.operations.*;
+import frc.robot.Config;
+import frc.robot.gamecomponents.ColourSensor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.Config;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.controller.operations.*;
 
+public class TeleopController implements ControllerClass{
 
-/**
-    * The integer value represents the axis enumeration
-    * Axis 1 is the Left Joystick X axis value Left to Right = -1 to 1  
-    * Axis 2 is the Left Joystick Y axis value Up to Down = -1 to 1 
-    * Axis 3 is the Rear Triggers axis value Left = 0 up to 1 & Right = 0 down to -1
-    * Axis 4 is the Right Joystick X axis value Left to Right = -1 to 1  
-    * Axis 5 is the Right Joystick Y axis value Up to Down = -1 to 1 
-    * Axis 6 is the Direction Pad X axis value Left to Right = -1 to 1
-    */
+    private Joystick stick = new Joystick(Config.JOYSTICK_PORT);
+    private XboxController xbox = new XboxController(Config.XBOX_PORT);
+    private ColourSensor cS = new ColourSensor();
+    private DigitalInput hE = new DigitalInput(Config.HE_CHANNEL);
+    private DigitalInput hE2 = new DigitalInput(Config.HE2_CHANNEL);
+    private DigitalInput lS = new DigitalInput(Config.LS_CHANNEL);
+    private DigitalInput lS2 = new DigitalInput(Config.LS2_CHANNEL);
 
-    public class TeleopController implements ControllerClass{
-        private Joystick stick = new Joystick(Config.JOYSTICK_PORT);
-        private XboxController xbox = new XboxController(Config.XBOX_PORT);
+    @Override
+    public double getDriveSpeed(){
 
-        @Override
-        public WoFOperation getWoFOperation(){
+        double speedY = stick.getY();
+        double throttle = stick.getThrottle() * -1;
+        double nThrottle = (throttle + 1) / 2;
+        double sOut = speedY * nThrottle;
+        return sOut;
+
+    }
+
+    @Override
+    public double getDriveDirection(){
+
+        double dOut = stick.getZ();
+        return dOut;
+
+    }
+
+    @Override
+    public WoFOperation getWoFOperation(){
+
         WoFOperation opOut = WoFOperation.STOP;
+
         if (xbox.getXButton()){
-        opOut = WoFOperation.LEFT;
+
+            opOut = WoFOperation.LEFT;
+
         }
+
         else if (xbox.getBButton()){
-        opOut = WoFOperation.RIGHT;
+
+            opOut = WoFOperation.RIGHT;
+
         }
+
         return opOut;
+
+    }
+
+    @Override
+    public ColourSensorOperation getColourSensorOperation(){
+
+        ColourSensorOperation opOut = null;
+
+        if (cS.cMR.color == null){
+
+            opOut = ColourSensorOperation.NULL;
+
+        }
+
+        else if (cS.cMR.color == Config.COLOUR_RED){
+
+            opOut = ColourSensorOperation.RED;
+
+        }
+
+        else if (cS.cMR.color == Config.COLOUR_BLUE){
+
+            opOut = ColourSensorOperation.BLUE;
+
+        }
+
+        else if (cS.cMR.color == Config.COLOUR_YELLOW){
+
+            opOut = ColourSensorOperation.YELLOW;
+
+        }
+
+        else if (cS.cMR.color == Config.COLOUR_GREEN){
+
+            opOut = ColourSensorOperation.GREEN;
+
         }
         
+        return opOut;
 
-    
-
-    
-
-
-    public double getDriveSpeed(){
-        double SpeedYRaw = ((stick.getRawAxis(3)*-1) + 1)/2;
-        double SpeedY = SpeedYRaw * (stick.getRawAxis(1)*-1);
-        double Speed = SpeedY * Config.SPEED_SENSITIVITY;
-        return Speed;
-    }
-
-    public double getDriveDirection(){
-        double DirectionX = stick.getRawAxis(2);
-        double Direction = DirectionX * Config.DIRECTION_SENSITIVITY;
-        return Direction;
-    }
-
-    public boolean ballGrabInSlow(){
-        boolean Button9Pressed = stick.getRawButton(9);
-        return Button9Pressed;
-    }
-
-    public boolean ballGrabOutSlow(){
-        boolean Button10Pressed = stick.getRawButton(10);
-        return Button10Pressed;
-    }
-    public boolean auxMotorIn(){
-        boolean Button2Pressed = stick.getRawButton(2);
-        return Button2Pressed;
-    }
-
-    public boolean auxMotorOut(){
-        boolean Button1Pressed = stick.getRawButton(1);
-        return Button1Pressed;
-    }
-    public boolean auxMotorStop(){
-        boolean Button3Pressed = stick.getRawButton(3);
-        return Button3Pressed;
     }
 
     @Override
-    public boolean ballGrabIn() {
-        // TODO Auto-generated method stub
-        return false;
+    public BallGrabOperation getBallGrabOperation(){
+
+        BallGrabOperation opOut = BallGrabOperation.STOP;
+
+        if (stick.getRawButton(Config.BG_SIN_BUTTON)){
+
+            opOut = BallGrabOperation.S_IN;
+
+        }
+
+        else if (stick.getRawButton(Config.BG_SOUT_BUTTON)){
+
+            opOut = BallGrabOperation.S_OUT;
+
+        }
+
+        else if (stick.getRawButton(Config.BG_FIN_BUTTON)){
+
+            opOut = BallGrabOperation.F_IN;
+
+        }
+
+        else if (stick.getRawButton(Config.BG_FOUT_BUTTON)){
+
+            opOut = BallGrabOperation.F_OUT;
+
+        }
+
+        return opOut;
+
     }
-
-    @Override
-    public boolean ballGrabOut() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-    
-
-    
-             
-         
-    
-
-
-
-
-
 
 }
